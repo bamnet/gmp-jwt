@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/iamcredentials/v1"
 	"google.golang.org/api/oauth2/v2"
 )
@@ -37,7 +38,7 @@ func handler(w http.ResponseWriter, _ *http.Request) {
 
 	iamcredentialsServce, err := iamcredentials.NewService(context.Background())
 	if err != nil {
-		log.Fatalf("Error constructing iam service: %s", err)
+		log.Fatalf("Error constructing IAMCredential Service: %s", err)
 	}
 
 	serviceAccountName := fmt.Sprintf("projects/-/serviceAccounts/%s", serviceAccountEmail)
@@ -48,7 +49,15 @@ func handler(w http.ResponseWriter, _ *http.Request) {
 			Payload:   string(b),
 		}).Do()
 	if err != nil {
-		log.Fatalf("Error calling signJwt: %+v", err)
+		if e, ok := err.(*googleapi.Error); ok {
+			if e.Code == 403 {
+				log.Fatalf("Authorization error. %s probably needs 'Service Account Token Creator' IAM role.", serviceAccountEmail)
+			} else {
+				log.Fatalf("Error using IAMCredential Service to sign JWT: %v", err)
+			}
+		} else {
+			log.Fatalf("Error signing JWT: %v", err)
+		}
 	}
 
 	w.Write([]byte(resp.SignedJwt))
