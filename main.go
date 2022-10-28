@@ -49,11 +49,6 @@ func main() {
 		fmt.Sprintf("Check if requests have a valid token from app check in the %s header", appCheckTokenHeader))
 	flag.Parse()
 
-	email, err := whoami(context.Background())
-	if err != nil {
-		log.Fatalf("Error identifying service account: %v", err)
-	}
-
 	var appcheckClient *appcheck.Client
 	if appCheckEnabled {
 		fb, err := firebase.NewApp(context.Background(), nil)
@@ -65,6 +60,11 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error initializing AppCheck client: %v", err)
 		}
+	}
+
+	email, err := whoami(context.Background())
+	if err != nil {
+		log.Fatalf("Error identifying service account: %v", err)
 	}
 
 	tokenService, err = NewTokenService(email, appcheckClient)
