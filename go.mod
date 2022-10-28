@@ -5,6 +5,7 @@ go 1.19
 require (
 	firebase.google.com/go/v4 v4.0.0-20221026191307-606008d1cd96
 	github.com/golang-jwt/jwt/v4 v4.4.2
+	github.com/jnovack/flag v1.16.0
 	google.golang.org/api v0.100.0
 )
 
