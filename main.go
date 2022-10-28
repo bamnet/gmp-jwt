@@ -12,11 +12,13 @@ import (
 	"google.golang.org/api/oauth2/v2"
 )
 
+const appCheckTokenHeader = "X-Firebase-AppCheck"
+
 var tokenService *TokenService
 
-func handler(w http.ResponseWriter, _ *http.Request) {
+func handler(w http.ResponseWriter, r *http.Request) {
 	if appCheckEnabled() {
-		if ok, err := tokenService.VerifyAppCheck(""); !ok || err != nil {
+		if ok, err := tokenService.VerifyAppCheck(r.Header.Get(appCheckTokenHeader)); !ok || err != nil {
 			log.Printf("App check token verification failed (%t): %v", ok, err)
 			w.WriteHeader(http.StatusForbidden)
 			return
