@@ -2,65 +2,28 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"time"
 
-	"github.com/golang-jwt/jwt/v4"
-	"google.golang.org/api/googleapi"
-	"google.golang.org/api/iamcredentials/v1"
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/appcheck"
+
 	"google.golang.org/api/oauth2/v2"
 )
 
-type CustomClaims struct {
-	Scope string `json:"scope"`
-	Aud   string `json:"aud"`
-	jwt.RegisteredClaims
-}
-
-var serviceAccountEmail string
+var tokenService *TokenService
 
 func handler(w http.ResponseWriter, _ *http.Request) {
-	claims := CustomClaims{
-		"https://www.googleapis.com/auth/geo-platform.routes",
-		"https://routes.googleapis.com/",
-		jwt.RegisteredClaims{
-			Issuer:    serviceAccountEmail,
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
-			Subject:   serviceAccountEmail,
-		},
-	}
-	b, _ := json.Marshal(claims)
-
-	iamcredentialsServce, err := iamcredentials.NewService(context.Background())
-	if err != nil {
-		log.Fatalf("Error constructing IAMCredential Service: %s", err)
-	}
-
-	serviceAccountName := fmt.Sprintf("projects/-/serviceAccounts/%s", serviceAccountEmail)
-	resp, err := iamcredentialsServce.Projects.ServiceAccounts.SignJwt(
-		serviceAccountName,
-		&iamcredentials.SignJwtRequest{
-			Delegates: []string{serviceAccountName},
-			Payload:   string(b),
-		}).Do()
-	if err != nil {
-		if e, ok := err.(*googleapi.Error); ok {
-			if e.Code == 403 {
-				log.Fatalf("Authorization error. %s probably needs 'Service Account Token Creator' IAM role.", serviceAccountEmail)
-			} else {
-				log.Fatalf("Error using IAMCredential Service to sign JWT: %v", err)
-			}
-		} else {
-			log.Fatalf("Error signing JWT: %v", err)
+	if appCheckEnabled() {
+		if ok, err := tokenService.VerifyAppCheck(""); !ok || err != nil {
+			log.Printf("App check token verification failed (%t): %v", ok, err)
+			w.WriteHeader(http.StatusForbidden)
+			return
 		}
 	}
-
-	w.Write([]byte(resp.SignedJwt))
+	token, _ := tokenService.GenerateToken()
+	w.Write([]byte(token))
 }
 
 func whoami(ctx context.Context) (string, error) {
@@ -82,7 +45,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error identifying service account: %v", err)
 	}
-	serviceAccountEmail = email
+
+	var appcheckClient *appcheck.Client
+	if appCheckEnabled() {
+		fb, err := firebase.NewApp(context.Background(), nil)
+		if err != nil {
+			log.Fatalf("error initializing app: %v\n", err)
+		}
+
+		appcheckClient, err = fb.AppCheck(context.Background())
+		if err != nil {
+			log.Fatalf("Error initializing AppCheck client: %v", err)
+		}
+	}
+
+	tokenService, err = NewTokenService(email, appcheckClient)
+	if err != nil {
+		log.Fatalf("Error creating token service: %v", err)
+	}
 
 	http.HandleFunc("/", handler)
 	port := os.Getenv("PORT")
@@ -95,4 +75,8 @@ func main() {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func appCheckEnabled() bool {
+	return os.Getenv("ENABLE_APPCHECK") == "TRUE"
 }
