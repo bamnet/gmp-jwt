@@ -1,4 +1,4 @@
-package main
+package tokens
 
 import (
 	"context"
@@ -14,12 +14,13 @@ import (
 	"google.golang.org/api/iamcredentials/v1"
 )
 
+// CustomClaims models claims that Google Cloud can authenticate via a JWT.
 type CustomClaims struct {
 	Scope string `json:"scope"`
-	Aud   string `json:"aud"`
 	jwt.RegisteredClaims
 }
 
+// TokenService manages minting tokens.
 type TokenService struct {
 	serviceAccountEmail string
 	tokenDuration       time.Duration
@@ -31,6 +32,7 @@ func NewTokenService(serviceAccountEmail string, tokenDuration time.Duration, ap
 	return &TokenService{serviceAccountEmail, tokenDuration, appcheckClient}, nil
 }
 
+// VerifyAppCheck verifies if the supplied Firebase App Check token is valid or not.
 func (ts *TokenService) VerifyAppCheck(token string) (bool, error) {
 	if ts.appcheckClient == nil {
 		return false, errors.New("appcheck client not configured")
@@ -44,11 +46,13 @@ func (ts *TokenService) VerifyAppCheck(token string) (bool, error) {
 	return false, err
 }
 
+// GenerateToken generates a JWT valid for use calling the Google Maps Platform Routes API.
+// The token is signed is issued and signed by the available service account.
 func (ts *TokenService) GenerateToken() (string, error) {
 	claims := CustomClaims{
 		"https://www.googleapis.com/auth/geo-platform.routes",
-		"https://routes.googleapis.com/",
 		jwt.RegisteredClaims{
+			Audience:  jwt.ClaimStrings{"https://routes.googleapis.com/"},
 			Issuer:    ts.serviceAccountEmail,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ts.tokenDuration)),
@@ -84,4 +88,9 @@ func (ts *TokenService) GenerateToken() (string, error) {
 	}
 
 	return resp.SignedJwt, nil
+}
+
+func init() {
+	// The audience claim should be represented as a single string, not an array.
+	jwt.MarshalSingleStringAsArray = false
 }

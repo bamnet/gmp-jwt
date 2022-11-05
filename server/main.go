@@ -12,14 +12,17 @@ import (
 	"firebase.google.com/go/v4/appcheck"
 	"github.com/jnovack/flag"
 	"google.golang.org/api/oauth2/v2"
+
+	ts "github.com/bamnet/gmp-jwt/tokens"
 )
 
 const appCheckTokenHeader = "X-Firebase-AppCheck"
 const defaultTokenDuration = 30 * time.Minute
 
 var appCheckEnabled bool
-var tokenService *TokenService
+var tokenService *ts.TokenService
 
+// handler makes jwts.
 func handler(w http.ResponseWriter, r *http.Request) {
 	if appCheckEnabled {
 		if ok, err := tokenService.VerifyAppCheck(r.Header.Get(appCheckTokenHeader)); !ok || err != nil {
@@ -32,6 +35,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(token))
 }
 
+// whoami identified the service account email address of the available service account.
 func whoami(ctx context.Context) (string, error) {
 	oauth2Service, err := oauth2.NewService(ctx)
 	if err != nil {
@@ -72,7 +76,7 @@ func main() {
 		log.Fatalf("Error identifying service account: %v", err)
 	}
 
-	tokenService, err = NewTokenService(email, tokenDuration, appcheckClient)
+	tokenService, err = ts.NewTokenService(email, tokenDuration, appcheckClient)
 	if err != nil {
 		log.Fatalf("Error creating token service: %v", err)
 	}
