@@ -22,12 +22,13 @@ type CustomClaims struct {
 
 type TokenService struct {
 	serviceAccountEmail string
+	tokenDuration       time.Duration
 	appcheckClient      *appcheck.Client
 }
 
-func NewTokenService(serviceAccountEmail string, appcheckClient *appcheck.Client) (*TokenService, error) {
+func NewTokenService(serviceAccountEmail string, tokenDuration time.Duration, appcheckClient *appcheck.Client) (*TokenService, error) {
 	log.Printf("App check enabled? %t", (appcheckClient != nil))
-	return &TokenService{serviceAccountEmail, appcheckClient}, nil
+	return &TokenService{serviceAccountEmail, tokenDuration, appcheckClient}, nil
 }
 
 func (ts *TokenService) VerifyAppCheck(token string) (bool, error) {
@@ -50,7 +51,7 @@ func (ts *TokenService) GenerateToken() (string, error) {
 		jwt.RegisteredClaims{
 			Issuer:    ts.serviceAccountEmail,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ts.tokenDuration)),
 			Subject:   ts.serviceAccountEmail,
 		},
 	}

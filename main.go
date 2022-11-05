@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/appcheck"
@@ -14,6 +15,7 @@ import (
 )
 
 const appCheckTokenHeader = "X-Firebase-AppCheck"
+const defaultTokenDuration = 30 * time.Minute
 
 var appCheckEnabled bool
 var tokenService *TokenService
@@ -47,6 +49,9 @@ func whoami(ctx context.Context) (string, error) {
 func main() {
 	flag.BoolVar(&appCheckEnabled, "enable_appcheck", false,
 		fmt.Sprintf("Check if requests have a valid token from app check in the %s header", appCheckTokenHeader))
+	var tokenDuration time.Duration
+	flag.DurationVar(&tokenDuration, "token_duration", defaultTokenDuration,
+		"Duration a generated token is valid for")
 	flag.Parse()
 
 	var appcheckClient *appcheck.Client
@@ -67,7 +72,7 @@ func main() {
 		log.Fatalf("Error identifying service account: %v", err)
 	}
 
-	tokenService, err = NewTokenService(email, appcheckClient)
+	tokenService, err = NewTokenService(email, tokenDuration, appcheckClient)
 	if err != nil {
 		log.Fatalf("Error creating token service: %v", err)
 	}
