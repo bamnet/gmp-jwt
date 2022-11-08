@@ -20,10 +20,15 @@ const appCheckTokenHeader = "X-Firebase-AppCheck"
 const defaultTokenDuration = 30 * time.Minute
 
 var appCheckEnabled bool
+var corsAllowedOrigin string
 var tokenService *ts.TokenService
 
 // handler makes jwts.
 func handler(w http.ResponseWriter, r *http.Request) {
+	if corsAllowedOrigin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", corsAllowedOrigin)
+	}
+	w.Header().Set("Access-Control-Allow-Headers", appCheckTokenHeader)
 	if appCheckEnabled {
 		if ok, err := tokenService.VerifyAppCheck(r.Header.Get(appCheckTokenHeader)); !ok || err != nil {
 			log.Printf("App check token verification failed (%t): %v", ok, err)
@@ -53,9 +58,14 @@ func whoami(ctx context.Context) (string, error) {
 func main() {
 	flag.BoolVar(&appCheckEnabled, "enable_appcheck", false,
 		fmt.Sprintf("Check if requests have a valid token from app check in the %s header", appCheckTokenHeader))
+
+	flag.StringVar(&corsAllowedOrigin, "cors_origins", "",
+		"Value to set for the 'Access-Control-Allow-Origin' header")
+
 	var tokenDuration time.Duration
 	flag.DurationVar(&tokenDuration, "token_duration", defaultTokenDuration,
 		"Duration a generated token is valid for")
+
 	flag.Parse()
 
 	var appcheckClient *appcheck.Client
