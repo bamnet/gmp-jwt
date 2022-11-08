@@ -8,11 +8,11 @@ Supports:
 
 The server (server/main.go) can be customized with the following flags:
 
-|flag||
-|------|-|
-| `--cors_origins` | Value to set for the 'Access-Control-Allow-Origin' header.  Use * for wildcard, which is dangerous in production. |
-| `--enable_appcheck`| If set, requests must a valid token from app check in the `X-Firebase-AppCheck` header. |
-| `--token_duration` | Duration a generated token is valid for (default 30m0s) |
+| Flag               | ENV               | |
+|--------------------|-------------------|-|
+| `--cors_origins`   | `CORS_ORIGINS`    | Value to set for the 'Access-Control-Allow-Origin' header.  Use * for wildcard, which is dangerous in production. |
+| `--enable_appcheck`| `ENABLE_APPCHECK` | If set, requests must a valid token from app check in the `X-Firebase-AppCheck` header.                           |
+| `--token_duration` | `TOKEN_DURATION`  | Duration a generated token is valid for (default 30m0s).                                                          |
 
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
 
