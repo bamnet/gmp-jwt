@@ -14,6 +14,8 @@ The server (server/main.go) can be customized with the following flags:
 | `--enable_appcheck`| If set, requests must a valid token from app check in the `X-Firebase-AppCheck` header. |
 | `--token_duration` | Duration a generated token is valid for (default 30m0s) |
 
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+
 ------
 
 Tokens are generated using an available Service Account via [Application Default Credentials](https://cloud.google.com/docs/authentication/provide-credentials-adc).
