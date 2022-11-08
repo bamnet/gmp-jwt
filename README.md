@@ -6,6 +6,14 @@ Supports:
 
 * [Routes API](https://developers.google.com/maps/documentation/routes)
 
+The server (server/main.go) can be customized with the following flags:
+
+|flag||
+|------|-|
+| `--cors_origins` | Value to set for the 'Access-Control-Allow-Origin' header.  Use * for wildcard, which is dangerous in production. |
+| `--enable_appcheck`| If set, requests must a valid token from app check in the `X-Firebase-AppCheck` header. |
+| `--token_duration` | Duration a generated token is valid for (default 30m0s) |
+
 ------
 
 Tokens are generated using an available Service Account via [Application Default Credentials](https://cloud.google.com/docs/authentication/provide-credentials-adc).

@@ -57,7 +57,7 @@ func whoami(ctx context.Context) (string, error) {
 
 func main() {
 	flag.BoolVar(&appCheckEnabled, "enable_appcheck", false,
-		fmt.Sprintf("Check if requests have a valid token from app check in the %s header", appCheckTokenHeader))
+		fmt.Sprintf("If set, requests must have a valid token from app check in the %s header", appCheckTokenHeader))
 
 	flag.StringVar(&corsAllowedOrigin, "cors_origins", "",
 		"Value to set for the 'Access-Control-Allow-Origin' header")
