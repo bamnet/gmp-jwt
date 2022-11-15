@@ -5,6 +5,7 @@ GMP-JWT generates JWTs suitable for use authenticating to Google Maps Platform A
 Supports:
 
 * [Routes API](https://developers.google.com/maps/documentation/routes)
+* [Address Validation API](https://developers.google.com/maps/documentation/address-validation)
 
 The server (server/main.go) can be customized with the following flags:
 

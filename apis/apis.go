@@ -1,10 +1,15 @@
 // Package apis contains JWT claim values for Google Maps Platform APIs.
 package apis
 
-import "strings"
+import (
+	"strings"
+)
 
 const RoutesScope = "https://www.googleapis.com/auth/geo-platform.routes"
 const RoutesAudience = "https://routes.googleapis.com/"
+
+const AddressValidationScope = "https://www.googleapis.com/auth/maps-platform.addressvalidation"
+const AddressValidationAudience = "https://addressvalidation.googleapis.com/"
 
 // APITokenInfo represents the claims a JWT should include to authenticate.
 type APITokenInfo struct {
@@ -13,7 +18,8 @@ type APITokenInfo struct {
 }
 
 var apis = map[string]APITokenInfo{
-	"routes": {RoutesScope, RoutesAudience},
+	"routes":            {RoutesScope, RoutesAudience},
+	"addressvalidation": {AddressValidationScope, AddressValidationAudience},
 }
 
 // Lookup returns scope and audience information suitable for the supplied APIs.
