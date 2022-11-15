@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"firebase.google.com/go/v4/appcheck"
+	"github.com/bamnet/gmp-jwt/apis"
 	"github.com/golang-jwt/jwt/v4"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/iamcredentials/v1"
@@ -49,11 +50,12 @@ func (ts *TokenService) VerifyAppCheck(token string) (bool, error) {
 // GenerateToken generates a JWT valid for use calling the Google Maps Platform Routes API.
 // The token is signed is issued and signed by the available service account.
 func (ts *TokenService) GenerateToken() (string, error) {
+	apiInfo := apis.Lookup([]string{"*"})
 	// In my tests (Nov 2022), either a scope OR aud is required. We set both because why not.
 	claims := CustomClaims{
-		"https://www.googleapis.com/auth/geo-platform.routes",
+		apiInfo.Scope,
 		jwt.RegisteredClaims{
-			Audience:  jwt.ClaimStrings{"https://routes.googleapis.com/"},
+			Audience:  jwt.ClaimStrings{apiInfo.Audience},
 			Issuer:    ts.serviceAccountEmail,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ts.tokenDuration)),
