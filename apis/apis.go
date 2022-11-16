@@ -27,7 +27,13 @@ var APIs = map[string]APITokenInfo{
 func Lookup(names []string) APITokenInfo {
 	scopes := []string{}
 	audience := []string{}
-	if names[0] == "*" {
+	token := APITokenInfo{}
+
+	if len(names) == 0 {
+		return token
+	}
+
+	if IsWildcard(names) {
 		for _, api := range APIs {
 			scopes = append(scopes, api.Scope)
 			audience = append(audience, api.Audience)
@@ -41,7 +47,6 @@ func Lookup(names []string) APITokenInfo {
 		}
 	}
 
-	token := APITokenInfo{}
 	// An audience constraint can only be applied when the token has 1 audience.
 	if len(audience) == 1 {
 		token.Audience = audience[0]
@@ -50,4 +55,9 @@ func Lookup(names []string) APITokenInfo {
 	token.Scope = strings.Join(scopes, " ")
 
 	return token
+}
+
+// IsWildcard identifies if list of API names actually means all APIs.
+func IsWildcard(apis []string) bool {
+	return len(apis) >= 1 && apis[0] == "*"
 }

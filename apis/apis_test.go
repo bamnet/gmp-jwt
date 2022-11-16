@@ -19,6 +19,7 @@ func TestLookup(t *testing.T) {
 		{[]string{"addressvalidation"}, AddressValidationScope, AddressValidationAudience},
 		{[]string{"addressvalidation", "routes"}, fmt.Sprintf("%s %s", AddressValidationScope, RoutesScope), ""},
 		{[]string{"unknown"}, "", ""},
+		{[]string{}, "", ""},
 	} {
 		got := Lookup(row.apiName)
 		if got.Audience != row.wantAudience {

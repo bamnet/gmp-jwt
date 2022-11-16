@@ -28,6 +28,17 @@ var allowedAPIs []string
 
 // handler makes jwts.
 func handler(w http.ResponseWriter, r *http.Request) {
+	// Parse the requested APIs, if any.
+	r.ParseForm()
+	requestedAPIs := strings.Split(r.Form.Get("apis"), ",")
+	if len(requestedAPIs) == 0 || requestedAPIs[0] == "" {
+		requestedAPIs = allowedAPIs
+	}
+	// Don't let users request an un-allowed API.
+	if !apis.IsWildcard(allowedAPIs) {
+		requestedAPIs = filterAllowedAPIs(requestedAPIs)
+	}
+
 	if corsAllowedOrigin != "" {
 		w.Header().Set("Access-Control-Allow-Origin", corsAllowedOrigin)
 	}
@@ -39,7 +50,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	token, _ := tokenService.GenerateToken(allowedAPIs)
+	token, _ := tokenService.GenerateToken(requestedAPIs)
 	w.Write([]byte(token))
 }
 
@@ -75,7 +86,7 @@ func main() {
 
 	// Parse and validate the allowed APIs flag.
 	allowedAPIs = strings.Split(*allowedAPIsFlat, ",")
-	if len(allowedAPIs) != 1 || allowedAPIs[0] != "*" {
+	if !apis.IsWildcard(allowedAPIs) {
 		for _, api := range allowedAPIs {
 			if _, ok := apis.APIs[api]; !ok {
 				log.Printf("Warning: API '%s' not found in API Info table. Will be skipped.", api)
@@ -117,4 +128,25 @@ func main() {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func filterAllowedAPIs(requested []string) []string {
+	safe := []string{}
+	for _, api := range requested {
+		if contains(allowedAPIs, api) {
+			safe = append(safe, api)
+		} else {
+			log.Printf("API '%s' not in allowlist, skipping", api)
+		}
+	}
+	return safe
 }
