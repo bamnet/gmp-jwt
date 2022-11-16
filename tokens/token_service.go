@@ -49,8 +49,10 @@ func (ts *TokenService) VerifyAppCheck(token string) (bool, error) {
 
 // GenerateToken generates a JWT valid for use calling the Google Maps Platform Routes API.
 // The token is signed is issued and signed by the available service account.
-func (ts *TokenService) GenerateToken() (string, error) {
-	apiInfo := apis.Lookup([]string{"*"})
+func (ts *TokenService) GenerateToken(requestedAPIs []string) (string, error) {
+	// Furst lookup the Audience & Scopes needed for the set of APIs.
+	apiInfo := apis.Lookup(requestedAPIs)
+
 	// In my tests (Nov 2022), either a scope OR aud is required. We set both because why not.
 	claims := CustomClaims{
 		apiInfo.Scope,

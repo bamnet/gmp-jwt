@@ -11,6 +11,7 @@ The server (server/main.go) can be customized with the following flags:
 
 | Flag               | ENV               | |
 |--------------------|-------------------|-|
+| `--allowed_apis`   | `ALLOWED_APIS`    | Comma-seperated list of APIs tokens can be generated for, or * for all supported.                                 |
 | `--cors_origins`   | `CORS_ORIGINS`    | Value to set for the 'Access-Control-Allow-Origin' header.  Use * for wildcard, which is dangerous in production. |
 | `--enable_appcheck`| `ENABLE_APPCHECK` | If set, requests must a valid token from app check in the `X-Firebase-AppCheck` header.                           |
 | `--token_duration` | `TOKEN_DURATION`  | Duration a generated token is valid for (default 30m0s).                                                          |

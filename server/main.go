@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	firebase "firebase.google.com/go/v4"
@@ -13,6 +14,7 @@ import (
 	"github.com/jnovack/flag"
 	"google.golang.org/api/oauth2/v2"
 
+	"github.com/bamnet/gmp-jwt/apis"
 	ts "github.com/bamnet/gmp-jwt/tokens"
 )
 
@@ -22,6 +24,7 @@ const defaultTokenDuration = 30 * time.Minute
 var appCheckEnabled bool
 var corsAllowedOrigin string
 var tokenService *ts.TokenService
+var allowedAPIs []string
 
 // handler makes jwts.
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +39,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	token, _ := tokenService.GenerateToken()
+	token, _ := tokenService.GenerateToken(allowedAPIs)
 	w.Write([]byte(token))
 }
 
@@ -66,7 +69,19 @@ func main() {
 	flag.DurationVar(&tokenDuration, "token_duration", defaultTokenDuration,
 		"Duration a generated token is valid for")
 
+	allowedAPIsFlat := flag.String("allowed_apis", "*", "comma-seperated list of APIs tokens can be generated for, or * for all supported")
+
 	flag.Parse()
+
+	// Parse and validate the allowed APIs flag.
+	allowedAPIs = strings.Split(*allowedAPIsFlat, ",")
+	if len(allowedAPIs) != 1 || allowedAPIs[0] != "*" {
+		for _, api := range allowedAPIs {
+			if _, ok := apis.APIs[api]; !ok {
+				log.Printf("Warning: API '%s' not found in API Info table. Will be skipped.", api)
+			}
+		}
+	}
 
 	var appcheckClient *appcheck.Client
 	if appCheckEnabled {

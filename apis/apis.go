@@ -17,7 +17,8 @@ type APITokenInfo struct {
 	Audience string
 }
 
-var apis = map[string]APITokenInfo{
+// APIs maps shortnames of each API to information about their scope and audience.
+var APIs = map[string]APITokenInfo{
 	"routes":            {RoutesScope, RoutesAudience},
 	"addressvalidation": {AddressValidationScope, AddressValidationAudience},
 }
@@ -27,13 +28,13 @@ func Lookup(names []string) APITokenInfo {
 	scopes := []string{}
 	audience := []string{}
 	if names[0] == "*" {
-		for _, api := range apis {
+		for _, api := range APIs {
 			scopes = append(scopes, api.Scope)
 			audience = append(audience, api.Audience)
 		}
 	} else {
 		for _, name := range names {
-			if api, ok := apis[name]; ok {
+			if api, ok := APIs[name]; ok {
 				scopes = append(scopes, api.Scope)
 				audience = append(audience, api.Audience)
 			}
