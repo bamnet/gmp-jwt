@@ -6,6 +6,7 @@ Supports:
 
 * [Routes API](https://developers.google.com/maps/documentation/routes)
 * [Address Validation API](https://developers.google.com/maps/documentation/address-validation)
+* [Places API (new)](https://developers.google.com/maps/documentation/places/web-service/text-search)
 
 The server (server/main.go) can be customized with the following flags:
 
