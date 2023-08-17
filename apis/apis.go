@@ -11,6 +11,9 @@ const RoutesAudience = "https://routes.googleapis.com/"
 const AddressValidationScope = "https://www.googleapis.com/auth/maps-platform.addressvalidation"
 const AddressValidationAudience = "https://addressvalidation.googleapis.com/"
 
+const PlacesScope = "https://www.googleapis.com/auth/maps-platform.places"
+const PlacesAudience = "https://places.googleapis.com/"
+
 // APITokenInfo represents the claims a JWT should include to authenticate.
 type APITokenInfo struct {
 	Scope    string
@@ -21,6 +24,7 @@ type APITokenInfo struct {
 var APIs = map[string]APITokenInfo{
 	"routes":            {RoutesScope, RoutesAudience},
 	"addressvalidation": {AddressValidationScope, AddressValidationAudience},
+	"places":            {PlacesScope, PlacesAudience},
 }
 
 // Lookup returns scope and audience information suitable for the supplied APIs.
