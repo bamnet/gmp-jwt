@@ -50,7 +50,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	token, _ := tokenService.GenerateToken(requestedAPIs)
+	token, err := tokenService.GenerateToken(requestedAPIs)
+	if err != nil {
+		switch err {
+		case apis.ErrIncompatibleAPIs:
+			w.WriteHeader(http.StatusBadRequest)
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
 	w.Write([]byte(token))
 }
 

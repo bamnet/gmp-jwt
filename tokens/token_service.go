@@ -51,7 +51,11 @@ func (ts *TokenService) VerifyAppCheck(token string) (bool, error) {
 // The token is signed is issued and signed by the available service account.
 func (ts *TokenService) GenerateToken(requestedAPIs []string) (string, error) {
 	// Furst lookup the Audience & Scopes needed for the set of APIs.
-	apiInfo := apis.Lookup(requestedAPIs)
+	apiInfo, err := apis.Lookup(requestedAPIs)
+	if err != nil {
+		log.Printf("Error lookup up token information: %v", err)
+		return "", err
+	}
 
 	// In my tests (Nov 2022), either a scope OR aud is required. We set both because why not.
 	claims := CustomClaims{
