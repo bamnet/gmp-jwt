@@ -7,6 +7,8 @@ Supports:
 * [Routes API](https://developers.google.com/maps/documentation/routes)
 * [Address Validation API](https://developers.google.com/maps/documentation/address-validation)
 * [Places API (new)](https://developers.google.com/maps/documentation/places/web-service/text-search)
+* [Air Quality API](https://developers.google.com/maps/documentation/air-quality)
+* [Solar API](https://developers.google.com/maps/documentation/solar)
 
 The server (server/main.go) can be customized with the following flags:
 
@@ -28,4 +30,4 @@ or manually provided via the `GOOGLE_APPLICATION_CREDENTIALS` ENV variable.
 An `apis` parameter can be set to pass a list of APIs that the token should include. This list must be a subset of the `allowed_apis`.
 
 As an example, if the server was started with ALLOWED_APIs=* you could request different tokens using `/?apis=routes` which will return a
-token scoped to the Routes API. `/apis=addressvalidation,routes` will return a token scoped to both Address Validation and Routes API.
+token scoped to the Routes API. `/?apis=addressvalidation,routes` will return a token scoped to both Address Validation and Routes API.
