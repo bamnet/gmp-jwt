@@ -15,6 +15,9 @@ const AddressValidationAudience = "https://addressvalidation.googleapis.com/"
 const PlacesScope = "https://www.googleapis.com/auth/maps-platform.places"
 const PlacesAudience = "https://places.googleapis.com/"
 
+const TileScope = "https://www.googleapis.com/auth/maps-platform.tiles"
+const TileAudience = "https://tile.googleapis.com/"
+
 const GCPScope = "https://www.googleapis.com/auth/cloud-platform"
 const AirQualityAudience = "https://airquality.googleapis.com/"
 const SolarAudience = "https://solar.googleapis.com/"
@@ -32,6 +35,7 @@ var APIs = map[string]APITokenInfo{
 	"places":            {PlacesScope, PlacesAudience},
 	"airquality":        {GCPScope, AirQualityAudience},
 	"solar":             {GCPScope, SolarAudience},
+	"tile":              {TileScope, TileAudience},
 }
 
 var ErrIncompatibleAPIs = errors.New("request cannot include a multiple gcp-scoped apis or a mix of gcp-scoped and maps-scoped")

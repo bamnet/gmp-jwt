@@ -20,6 +20,7 @@ func TestLookup(t *testing.T) {
 		{[]string{"routes"}, []string{RoutesScope}, RoutesAudience, false},
 		{[]string{"addressvalidation"}, []string{AddressValidationScope}, AddressValidationAudience, false},
 		{[]string{"addressvalidation", "routes"}, []string{AddressValidationScope, RoutesScope}, "", false},
+		{[]string{"tile"}, []string{TileScope}, TileAudience, false},
 		{[]string{"airquality"}, []string{GCPScope}, AirQualityAudience, false},
 		{[]string{"airquality", "solar"}, []string{""}, "", true},
 		{[]string{"solar", "places"}, []string{""}, "", true},
@@ -51,7 +52,7 @@ func TestWildcardLookup(t *testing.T) {
 		t.Errorf("Lookup(*).Audience got %s, want %s", got.Audience, wantAudience)
 	}
 
-	wantScope := []string{RoutesScope, AddressValidationScope, PlacesScope}
+	wantScope := []string{TileScope, RoutesScope, AddressValidationScope, PlacesScope}
 	gotScope := strings.Split(got.Scope, " ")
 
 	if diff := cmp.Diff(wantScope, gotScope, sort); diff != "" {

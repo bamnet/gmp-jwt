@@ -9,6 +9,7 @@ Supports:
 * [Places API (new)](https://developers.google.com/maps/documentation/places/web-service/text-search)
 * [Air Quality API](https://developers.google.com/maps/documentation/air-quality)
 * [Solar API](https://developers.google.com/maps/documentation/solar)
+* [Map Tiles API](https://developers.google.com/maps/documentation/tile)
 
 The server (server/main.go) can be customized with the following flags:
 
